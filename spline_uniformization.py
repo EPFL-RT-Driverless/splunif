@@ -1,3 +1,7 @@
+#  Copyright (c) 2022. Tudor Oancea, EPFL Racing Team Driverless
+# A very simple package that constructs 2D uniform splines, whose continuous parameters
+# correspond to the arc length of the spline.
+
 from typing import Tuple
 
 import numpy as np

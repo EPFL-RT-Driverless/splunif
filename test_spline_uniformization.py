@@ -1,3 +1,5 @@
+#  Copyright (c) 2022. Tudor Oancea, EPFL Racing Team Driverless
+
 from matplotlib import pyplot as plt
 from scipy.integrate import quadrature
 
@@ -16,7 +18,7 @@ if __name__ == "__main__":
         ref_points=center_line_points,
         nbr_interpolation_points=2 * center_line_points.shape[1],
     )
-    M = sigma.size-1
+    M = sigma.size - 1
     L = sigma[-1]
     new_x_cl = CubicSpline(
         sigma,
@@ -35,31 +37,30 @@ if __name__ == "__main__":
     )[0]
     lam = np.zeros(M)
     for j in range(M):
-        lam[j] = new_length(sigma[j], sigma[j+1])
+        lam[j] = new_length(sigma[j], sigma[j + 1])
     computed_sigma = np.concatenate(([0.0], np.cumsum(lam)))
 
-
     # declare naive spline
-    N = center_line_points.shape[1]-1
-    t = np.linspace(0.0, L, N+1)
+    N = center_line_points.shape[1] - 1
+    t = np.linspace(0.0, L, N + 1)
     x_cl = CubicSpline(
         t,
-        center_line_points[0,:],
+        center_line_points[0, :],
         bc_type="periodic",
     )
     y_cl = CubicSpline(
         t,
-        center_line_points[1,:],
+        center_line_points[1, :],
         bc_type="periodic",
     )
-    length = lambda t1, t2 : quadrature(
-        lambda u : np.sqrt(x_cl(u, 1) ** 2 + y_cl(u, 1) ** 2),
+    length = lambda t1, t2: quadrature(
+        lambda u: np.sqrt(x_cl(u, 1) ** 2 + y_cl(u, 1) ** 2),
         t1,
         t2,
     )[0]
     l = np.zeros(N)
     for i in range(N):
-        l[i] = length(t[i], t[i+1])
+        l[i] = length(t[i], t[i + 1])
     s = np.concatenate(([0.0], np.cumsum(l)))
 
     # plot the two reference path to make sure they are the same
