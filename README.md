@@ -1,4 +1,5 @@
-# Spline uniformization
+# Splunif
+
 A very simple package that constructs 2D uniform splines, whose continuous parameters 
 correspond to the arc length of the spline.
 
@@ -15,5 +16,5 @@ correspond to the arc length of the spline.
 [//]: # (- **Step 2** : find )
 
 ## References
-[Wang, Hongling & Kearney, Joseph & Atkinson, Kendall. (2002). Arc-length 
-parameterized spline curves for real-time simulation.](https://www.researchgate.net/publication/228718576_Arc-length_parameterized_spline_curves_for_real-time_simulation) 
+
+[Wang, Hongling & Kearney, Joseph & Atkinson, Kendall. (2002). Arc-length parameterized spline curves for real-time simulation.](https://www.researchgate.net/publication/228718576_Arc-length_parameterized_spline_curves_for_real-time_simulation)

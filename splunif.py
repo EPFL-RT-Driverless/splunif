@@ -1,5 +1,5 @@
 #  Copyright (c) 2022. Tudor Oancea, EPFL Racing Team Driverless
-# A very simple package that constructs 2D uniform splines, whose continuous parameters
+# Splunf : A very simple package that constructs 2D uniform splines, whose continuous parameters
 # correspond to the arc length of the spline.
 
 from typing import Tuple
@@ -11,7 +11,10 @@ from scipy.optimize import bisect
 
 
 def uniform_points_and_breaks(
-    ref_points: np.ndarray, nbr_interpolation_points: int = None, periodic: bool = True
+    ref_points: np.ndarray,
+    nbr_interpolation_points: int = None,
+    periodic: bool = True,
+    additional_ref_points: list = None,
 ):
     """
     Fits a spline using the give reference points and computes new breaks and
@@ -27,6 +30,9 @@ def uniform_points_and_breaks(
     :return: new interpolation points (np.ndarray of shape (2,nbr_interpolation_points))
      and the break points to use to fit the uniform spline.
     """
+    assert (
+        len(ref_points.shape) == 2 and ref_points.shape[0] == 2
+    ), "Parameter ref_points has wrong shape : {}".format(ref_points.shape)
     N = ref_points.shape[1] - 1
     t = np.linspace(0.0, N, N + 1, dtype=float)
     x_ref = CubicSpline(
@@ -52,7 +58,6 @@ def uniform_points_and_breaks(
 
     s = np.concatenate(([0.0], np.cumsum(l)))
     L = s[-1]
-    print("L = ", L)
 
     # Step 2 : find the uniformization points ========================================
     M = nbr_interpolation_points
@@ -81,7 +86,41 @@ def uniform_points_and_breaks(
         new_points[0, j] = x_ref(t_tilde[j])
         new_points[1, j] = y_ref(t_tilde[j])
 
-    return new_points, sigma
+    if additional_ref_points is None:
+        return new_points, sigma
+    else:
+        additional_results = []
+        for points in additional_ref_points:
+            if len(points.shape) == 1 or (
+                len(points.shape) == 2 and points.shape[0] == 1
+            ):
+                spline = CubicSpline(
+                    t, points, bc_type="periodic" if periodic else "not-a-knot"
+                )
+                additional_results.append(
+                    np.apply_along_axis(spline, 0, t_tilde).ravel()
+                )
+            elif len(points.shape) == 2 and points.shape[0] == 2:
+                spline1 = CubicSpline(
+                    t, points[0, :], bc_type="periodic" if periodic else "not-a-knot"
+                )
+                spline2 = CubicSpline(
+                    t, points[1, :], bc_type="periodic" if periodic else "not-a-knot"
+                )
+                additional_results.append(
+                    np.concatenate(
+                        (
+                            np.apply_along_axis(spline1, 0, t_tilde).reshape(1, -1),
+                            np.apply_along_axis(spline2, 0, t_tilde).reshape(1, -1),
+                        )
+                    )
+                )
+            else:
+                raise ValueError(
+                    "additional points have wrong shape :{}".format(points.shape)
+                )
+
+        return new_points, sigma, additional_results
 
 
 def uniform_spline(
@@ -97,7 +136,8 @@ def uniform_spline(
     :param periodic: true if the spline is closed, false otherwise.
     :return: reference splines in X and Y, and total length of the spline.
     """
-    new_ref_points, sigma = uniform_points_and_breaks(
+    L = []
+    new_ref_points, sigma, *L = uniform_points_and_breaks(
         ref_points=ref_points,
         nbr_interpolation_points=nbr_interpolation_points,
         periodic=periodic,

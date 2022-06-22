@@ -3,7 +3,7 @@
 from matplotlib import pyplot as plt
 from scipy.integrate import quadrature
 
-from spline_uniformization import uniform_points_and_breaks
+from splunif import uniform_points_and_breaks
 import numpy as np
 from scipy.interpolate import CubicSpline
 
