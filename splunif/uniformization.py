@@ -1,6 +1,6 @@
 #  Copyright (c) 2022. Tudor Oancea, EPFL Racing Team Driverless
-# Splunf : A very simple package that constructs 2D uniform splines, whose continuous parameters
-# correspond to the arc length of the spline.
+# splunif : A very simple package that constructs 2D uniform splines, whose continuous
+# parameters correspond to the arc length of the spline.
 
 from typing import Tuple
 

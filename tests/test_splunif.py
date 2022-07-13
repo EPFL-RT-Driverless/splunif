@@ -1,14 +1,23 @@
 #  Copyright (c) 2022. Tudor Oancea, EPFL Racing Team Driverless
 
+import os
+import sys
+
+import numpy as np
 from matplotlib import pyplot as plt
 from scipy.integrate import quadrature
-
-from splunif import uniform_points_and_breaks
-import numpy as np
 from scipy.interpolate import CubicSpline
 
-if __name__ == "__main__":
-    data = np.loadtxt("fs_track.csv", delimiter=",", skiprows=1)
+sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
+
+from splunif import uniform_points_and_breaks
+
+def main(**kwargs):
+    data = np.loadtxt(
+        os.path.join(os.path.dirname(__file__), "fs_track.csv"),
+        delimiter=",",
+        skiprows=1,
+    )
     left_cones = data[:, :2].T
     right_cones = data[:, 2:4].T
     center_line_points = data[:, 4:6].T
@@ -63,33 +72,37 @@ if __name__ == "__main__":
         l[i] = length(t[i], t[i + 1])
     s = np.concatenate(([0.0], np.cumsum(l)))
 
-    # plot the two reference path to make sure they are the same
-    plt.figure()
-    plt.subplot(1, 2, 1)
-    plt.plot(
-        x_cl(np.linspace(0.0, N, 4 * N, dtype=float)),
-        y_cl(np.linspace(0.0, N, 4 * N, dtype=float)),
-        "r-",
-    )
-    plt.plot(
-        new_x_cl(np.linspace(0.0, L, 4 * M, dtype=float)),
-        new_y_cl(np.linspace(0.0, L, 4 * M, dtype=float)),
-        "g-",
-    )
-    plt.legend(["cl", "new_cl"])
-    plt.plot(left_cones[0, :], left_cones[1, :], "b+")
-    plt.plot(right_cones[0, :], right_cones[1, :], "y+")
-    plt.axis("equal")
-    plt.grid("on")
-    plt.title("map of original and uniformized curve")
+    if kwargs.get("plot", False):
+        # plot the two reference path to make sure they are the same
+        plt.figure()
+        plt.subplot(1, 2, 1)
+        plt.plot(
+            x_cl(np.linspace(0.0, N, 4 * N, dtype=float)),
+            y_cl(np.linspace(0.0, N, 4 * N, dtype=float)),
+            "r-",
+        )
+        plt.plot(
+            new_x_cl(np.linspace(0.0, L, 4 * M, dtype=float)),
+            new_y_cl(np.linspace(0.0, L, 4 * M, dtype=float)),
+            "g-",
+        )
+        plt.legend(["cl", "new_cl"])
+        plt.plot(left_cones[0, :], left_cones[1, :], "b+")
+        plt.plot(right_cones[0, :], right_cones[1, :], "y+")
+        plt.axis("equal")
+        plt.grid("on")
+        plt.title("map of original and uniformized curve")
 
-    # plot the new arc length vs the old one
-    plt.subplot(1, 2, 2)
-    plt.plot(t, s, "r-")
-    plt.plot(sigma, computed_sigma, "g-")
-    # plt.plot([0.0, L], [0.0, L], "b-")
-    plt.legend(["s", "sigma", "ref"])
-    plt.axis("equal")
-    plt.grid("on")
+        # plot the new arc length vs the old one
+        plt.subplot(1, 2, 2)
+        plt.plot(t, s, "r-")
+        plt.plot(sigma, computed_sigma, "g-")
+        # plt.plot([0.0, L], [0.0, L], "b-")
+        plt.legend(["s", "sigma", "ref"])
+        plt.axis("equal")
+        plt.grid("on")
 
-    plt.show()
+        plt.show()
+
+if __name__ == "__main__":
+    main()
